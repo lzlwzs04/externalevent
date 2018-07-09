@@ -2,6 +2,8 @@ var express = require('express');
 var app = express();
 var port = 8080;
 
+app.use(express.bodyParser());
+
 function authenticate(username, password, req, res) {
 	var auth = req.get('Authorization');
 	if (!auth) {
@@ -19,19 +21,6 @@ function authenticate(username, password, req, res) {
     }
 }
 
-app.use(function(req, res, next) {
-	req.rawBody = '';
-	req.setEncoding('utf8');
-
-	req.on('data', function(chunk) {
-		req.rawBody += chunk;
-	});
-
-	req.on('end', function() {
-		next();
-	});
-});
-
 app.post('/v2',
 				function(req, res) {
 					authenticate('admin', 'pwd', req, res);
@@ -45,7 +34,7 @@ app.post('/v2',
 					responseBody += "<ns2:responsePayload>";
 					responseBody += "<ns2:status>200</ns2:status>";
 					responseBody += "<ns2:statusDate>" + new Date().toISOString() + "</ns2:statusDate>";
-					responseBody += "<ns2:statusDetails><![CDATA[" + req.rawBody + "]]></ns2:statusDetails>";
+					responseBody += "<ns2:statusDetails><![CDATA[" + req.body + "]]></ns2:statusDetails>";
 					responseBody += "</ns2:responsePayload>";
 					responseBody += "</ns2:ExternalEventResponse>";
 					responseBody += "</S:Body>";
@@ -66,7 +55,7 @@ app.post('/v1',
 					responseBody += "<ns2:responsePayload>";
 					responseBody += "<ns2:status>200</ns2:status>";
 					responseBody += "<ns2:statusDate>" + new Date().toISOString() + "</ns2:statusDate>";
-					responseBody += "<ns2:statusDetails><![CDATA[" + req.rawBody + "]]></ns2:statusDetails>";
+					responseBody += "<ns2:statusDetails><![CDATA[" + req.body + "]]></ns2:statusDetails>";
 					responseBody += "</ns2:responsePayload>";
 					responseBody += "</ns2:ExternalEventResponse>";
 					responseBody += "</S:Body>";
